@@ -62,7 +62,7 @@ RUN chmod +x /sbin/pre-conf ; sync \
     && rm /sbin/pre-conf
 
 RUN cd /usr/src \
-    && wget http://www.andywilcock.com/code/cambozola/cambozola-latest.tar.gz \
+    && wget https://src.fedoraproject.org/lookaside/pkgs/cambozola/cambozola-latest.tar.gz/c4896a99702af61eead945ed58b5667b/cambozola-latest.tar.gz \
     && tar -xzvf /usr/src/cambozola-latest.tar.gz \
     && mv cambozola-0.936/dist/cambozola.jar /usr/share/zoneminder/www  \
     && rm /usr/src/cambozola-latest.tar.gz \
