@@ -76,7 +76,7 @@ else
   # [ -f /var/cache/zoneminder/configured ]
   if [[ $EMPTYDATABASE != 0 ]]; then
         echo 'database already configured.'
-	zmupdate.pl
+	zmupdate.pl -nointeractive
         rm -rf /var/run/zm/* 
 	/sbin/zm.sh&
    else  
@@ -95,7 +95,7 @@ else
         update-locale
 	
         date > /var/cache/zoneminder/configured
-        zmupdate.pl
+        zmupdate.pl -nointeractive
         rm -rf /var/run/zm/* 
         /sbin/zm.sh&
    fi
