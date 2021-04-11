@@ -82,7 +82,7 @@ RUN pip3 install --no-cache-dir -r /usr/src/requirements.txt
 RUN echo "deb http://ppa.launchpad.net/iconnor/zoneminder-1.34/ubuntu `cat /etc/container_environment/DISTRIB_CODENAME` main" >> /etc/apt/sources.list  \
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 776FFB04 \
     && apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends php-gd zoneminder \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends php-gd libapache2-mod-php7.4 zoneminder \
     && echo "ServerName localhost" | tee /etc/apache2/conf-available/fqdn.conf \
     && ln -s /etc/apache2/conf-available/fqdn.conf /etc/apache2/conf-enabled/fqdn.conf \
     && a2enmod cgi rewrite \
@@ -98,12 +98,12 @@ RUN echo "deb http://ppa.launchpad.net/iconnor/zoneminder-1.34/ubuntu `cat /etc/
     && rm -rf /var/lib/apt/lists/*
 
 #install zmeventserver
-ENV ZMEVENT_VERSION 6.1.15
-RUN cd /usr/src/ \
-    && wget -qO- https://github.com/pliablepixels/zmeventnotification/archive/v${ZMEVENT_VERSION}.tar.gz |tar -xzv \
-    && cd /usr/src/zmeventnotification-${ZMEVENT_VERSION} \
+ENV ZMEVENT_VERSION v6.1.22
+RUN mkdir /usr/src/zmevent \
+    && cd /usr/src/zmevent \
+    && wget -qO- https://github.com/pliablepixels/zmeventnotification/archive/${ZMEVENT_VERSION}.tar.gz |tar -xzv --strip 1 \
     && ./install.sh --install-config --install-es --install-hook --no-interactive --no-download-models --no-pysudo \
-    && rm -R /usr/src/zmeventnotification-${ZMEVENT_VERSION}
+    && rm -R /usr/src/zmevent
 
 VOLUME /var/cache/zoneminder /etc/zm /config /var/log/zm /var/lib/zmeventnotification/models /var/lib/zmeventnotification/images
 # to allow access from outside of the container  to the container service
