@@ -1,7 +1,7 @@
 # build missing perl dependencies for use in final container
 FROM ubuntu:20.04 as perlbuild
 
-ENV TZ America/New_York
+ENV TZ Europe/Berlin
 WORKDIR /usr/src
 RUN echo $TZ > /etc/timezone && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends \
         perl \
@@ -19,10 +19,10 @@ RUN apt-file update \
     && dh-make-perl --build --cpan Net::MQTT::Simple
 
 # Now build the final image
-FROM quantumobject/docker-baseimage:20.04
+FROM ubuntu:20.04
 LABEL maintainer="Angel Rodriguez <angel@quantumobject.com>"
 
-ENV TZ America/New_York
+ENV TZ Europe/Berlin
 ENV ZM_DB_HOST db
 ENV ZM_DB_NAME zm 
 ENV ZM_DB_USER zmuser
@@ -79,7 +79,7 @@ COPY requirements.txt /usr/src/requirements.txt
 RUN pip3 install --no-cache-dir -r /usr/src/requirements.txt
 
 # Install zoneminder
-RUN echo "deb http://ppa.launchpad.net/iconnor/zoneminder-1.34/ubuntu `cat /etc/container_environment/DISTRIB_CODENAME` main" >> /etc/apt/sources.list  \
+RUN echo "deb http://ppa.launchpad.net/iconnor/zoneminder-1.36/ubuntu `cat /etc/container_environment/DISTRIB_CODENAME` main" >> /etc/apt/sources.list  \
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 776FFB04 \
     && apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends php-gd libapache2-mod-php7.4 zoneminder \
@@ -98,7 +98,7 @@ RUN echo "deb http://ppa.launchpad.net/iconnor/zoneminder-1.34/ubuntu `cat /etc/
     && rm -rf /var/lib/apt/lists/*
 
 #install zmeventserver
-ENV ZMEVENT_VERSION v6.1.22
+ENV ZMEVENT_VERSION v6.1.27
 RUN mkdir /usr/src/zmevent \
     && cd /usr/src/zmevent \
     && wget -qO- https://github.com/pliablepixels/zmeventnotification/archive/${ZMEVENT_VERSION}.tar.gz |tar -xzv --strip 1 \
