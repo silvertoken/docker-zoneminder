@@ -6,7 +6,7 @@ set -e
 if [ -f /etc/configured ]; then
         echo 'container already configured'
 	rm -rf /var/run/zm/* 
-        /sbin/zm.sh&
+        /sbin/zm.sh
 else
  #code that need to run only one time ....	
 	
@@ -78,7 +78,7 @@ else
         echo 'database already configured.'
 	zmupdate.pl -nointeractive
         rm -rf /var/run/zm/* 
-	/sbin/zm.sh&
+	/sbin/zm.sh
    else  
         # if ZM_DB_NAME different that zm
         cp /usr/share/zoneminder/db/zm_create.sql /usr/share/zoneminder/db/zm_create.sql.backup
@@ -91,13 +91,10 @@ else
 	mysql -u $ZM_DB_USER -p$ZM_DB_PASS -h $ZM_DB_HOST -P$ZM_DB_PORT $ZM_DB_NAME < /usr/share/zoneminder/db/zm_create.sql 
         date > /var/cache/zoneminder/dbcreated
         
-	#needed to fix problem with ubuntu ... and cron 
-        update-locale
-	
         date > /var/cache/zoneminder/configured
         zmupdate.pl -nointeractive
         rm -rf /var/run/zm/* 
-        /sbin/zm.sh&
+   	date > /etc/configured
+        /sbin/zm.sh
    fi
-   date > /etc/configured
 fi
