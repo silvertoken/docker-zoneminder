@@ -6,7 +6,7 @@ set -e
 if [ -f /etc/configured ]; then
         echo 'container already configured'
 	rm -rf /var/run/zm/* 
-        /sbin/zm.sh&
+        /sbin/zm.sh
 else
  #code that need to run only one time ....	
 	
@@ -45,25 +45,23 @@ else
    mysqladmin ping --host=$ZM_DB_HOST --port=$ZM_DB_PORT --user=$ZM_DB_USER --password=$ZM_DB_PASS > /dev/null 2>&1
  }
 
+ mkdir -p /etc/zm/
  #check if Directory inside of /var/cache/zoneminder are present.
  if [ ! -d /var/cache/zoneminder/events ]; then
       mkdir -p /var/cache/zoneminder/{events,images,temp,cache}
       chown -R root:www-data /var/cache/zoneminder 
       chmod -R 770 /var/cache/zoneminder 
  fi
+
+ if [ ! -d /var/lib/zmeventnotification/push ]; then
+	mkdir -p /var/lib/zmeventnotification/push
+	chown -R root:www-data /var/lib/zmeventnotification/push
+ fi
+ ln -sf /etc/zm/tokens.txt /var/lib/zmeventnotification/push/tokens.txt
  
  chown -R root:www-data /etc/zm /var/log/zm
  chmod -R 770 /etc/zm /var/log/zm
  
- # Handle the zmeventnotification.ini file
- if [ -f /config/zmeventnotification.ini ]; then
-    echo "Moving zmeventnotification.ini"
-    if [ ! -d /var/cache/zoneminder/events ]; then
-       mkdir -p /etc/zm/
-    fi
-    ln -sf /config/zmeventnotification.ini /etc/zm/zmeventnotification.ini
-  fi
-
   # waiting for mysql
   while !(mysql_ready)
   do
@@ -78,7 +76,7 @@ else
         echo 'database already configured.'
 	zmupdate.pl -nointeractive
         rm -rf /var/run/zm/* 
-	/sbin/zm.sh&
+	/sbin/zm.sh
    else  
         # if ZM_DB_NAME different that zm
         cp /usr/share/zoneminder/db/zm_create.sql /usr/share/zoneminder/db/zm_create.sql.backup
@@ -91,13 +89,10 @@ else
 	mysql -u $ZM_DB_USER -p$ZM_DB_PASS -h $ZM_DB_HOST -P$ZM_DB_PORT $ZM_DB_NAME < /usr/share/zoneminder/db/zm_create.sql 
         date > /var/cache/zoneminder/dbcreated
         
-	#needed to fix problem with ubuntu ... and cron 
-        update-locale
-	
         date > /var/cache/zoneminder/configured
         zmupdate.pl -nointeractive
         rm -rf /var/run/zm/* 
-        /sbin/zm.sh&
+   	date > /etc/configured
+        /sbin/zm.sh
    fi
-   date > /etc/configured
 fi
