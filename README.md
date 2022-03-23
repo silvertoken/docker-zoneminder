@@ -1,6 +1,6 @@
 # docker-zoneminder
 
-Docker container for [zoneminder v1.34.22][3]
+Docker container for [zoneminder 1.36][3] with eventserver and objectdetection
 
 "ZoneMinder the top Linux video camera security and surveillance solution. ZoneMinder is intended for use in single or multi-camera video security applications, including commercial or home CCTV, theft prevention and child, family member or home monitoring and other domestic care scenarios such as nanny cam installations. It supports capture, analysis, recording, and monitoring of video data coming from one or more video or network cameras attached to a Linux system. ZoneMinder also support web and semi-automatic control of Pan/Tilt/Zoom cameras using a variety of protocols. It is suitable for use as a DIY home video security system and for commercial or professional video security and surveillance. It can also be integrated into a home automation system via X.10 or other protocols. If you're looking for a low cost CCTV system or a more flexible alternative to cheap DVR systems then why not give ZoneMinder a try?"
 
@@ -25,7 +25,7 @@ To run with MySQL in a separate container use the command below:
 docker network create net
 docker run -d -e TZ=America/New_York -e MYSQL_USER=zmuser -e MYSQL_PASSWORD=zmpass -e MYSQL_DATABASE=zm -e MYSQL_ROOT_HOST=% --net net --name db mysql/mysql-server:5.7
 
-docker run -d --shm-size=4096m -e TZ=America/New_York -e ZM_DB_HOST=db --net net --name zm -p 80:80 quantumobject/docker-zoneminder:1.34
+docker run -d --shm-size=4096m -e TZ=America/New_York -e ZM_DB_HOST=db --net net --name zm -p 80:80 milefork/zoneminder:1.36
 ```
 
 ## For newest version of database mysql and mariadb
@@ -66,10 +66,6 @@ Default value is America/New_York .
     ZM_DB_USER ==> MYSQL_USER
     ZM_DB_PASS ==> MYSQL_PASSWORD
     .......... ==> ........... 
-   
-## Branch Available at the moment 
-
-quantumobject/docker-zoneminder:1.34
 
 ## Volume for zoneminder container 
 
@@ -77,9 +73,11 @@ quantumobject/docker-zoneminder:1.34
    
    -v /home/linux_user/zm/etc_zm:/etc/zm
    
-   -v /home/linux_user/zm/config:/config
-   
    -v /home/linux_user/zm/log:/var/log/zm
+
+   ### Important!
+    See /etc folder in repo for default configuration files for event and objectdetection
+    Place them in your mapped etc volume
 
 ## Accessing the Zoneminder applications
 
@@ -138,7 +136,6 @@ services:
     volumes:
       - $PWD/log:/var/log/zm 
       - $PWD/etc_zm:/etc/zm
-      - $PWD/config:/config
       - $PWD/zoneminder:/var/cache/zoneminder
       - type: tmpfs
         target: /dev/shm
@@ -164,7 +161,6 @@ services:
     volumes:
       - $PWD/log:/var/log/zm 
       - $PWD/etc_zm:/etc/zm
-      - $PWD/config:/config
       - $PWD/zoneminder:/var/cache/zoneminder
       - type: tmpfs
         target: /dev/shm
