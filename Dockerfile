@@ -52,10 +52,11 @@ RUN echo $TZ > /etc/timezone && apt-get update && DEBIAN_FRONTEND=noninteractive
         libprotocol-websocket-perl \
         # Other dependencies for event zmeventserver
         python3-pip \
+        python3-dev \
         libgeos-dev \
         gifsicle \
-	gnupg \
-	wget \
+	    gnupg \
+	    wget \
     && dpkg -i /usr/src/*.deb \
     && apt-get clean \
     && rm -rf /tmp/* /var/tmp/*  \
