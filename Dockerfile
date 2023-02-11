@@ -44,6 +44,7 @@ RUN echo $TZ > /etc/timezone && apt-get update && DEBIAN_FRONTEND=noninteractive
         ntpdate \
         ffmpeg \
         ssmtp \
+        gcc \
         # Perl modules needed for zmeventserver
         libyaml-perl \
         libjson-perl \
