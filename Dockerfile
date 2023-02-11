@@ -1,7 +1,7 @@
 # build missing perl dependencies for use in final container
-FROM ubuntu:20.04 as perlbuild
+FROM ubuntu:22.04 as perlbuild
 
-ENV TZ Europe/Berlin
+ENV TZ America/Chicago
 WORKDIR /usr/src
 RUN echo $TZ > /etc/timezone && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends \
         perl \
@@ -19,10 +19,10 @@ RUN apt-file update \
     && dh-make-perl --build --cpan Net::MQTT::Simple
 
 # Now build the final image
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 LABEL maintainer="Angel Rodriguez <angel@quantumobject.com>"
 
-ENV TZ Europe/Berlin
+ENV TZ America/Chicago
 ENV ZM_DB_HOST db
 ENV ZM_DB_NAME zm 
 ENV ZM_DB_USER zmuser
