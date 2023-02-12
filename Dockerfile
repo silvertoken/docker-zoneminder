@@ -17,6 +17,7 @@ RUN echo $TZ > /etc/timezone && apt-get update && DEBIAN_FRONTEND=noninteractive
         libgit-repository-perl \
         libprotocol-websocket-perl \
         apt-file \
+        python3 \
         python3-pip \
         python3-dev \
     && apt-get clean
@@ -26,7 +27,8 @@ RUN apt-file update \
     && dh-make-perl --build --cpan Net::MQTT::Simple \
     && pip3 install --no-cache-dir -r /usr/src/requirements.txt \
     && find /usr/lib/ -name '__pycache__' -print0 | xargs -0 -n1 rm -rf \
-	&& find /usr/lib/ -name '*.pyc' -print0 | xargs -0 -n1 rm -rf
+	&& find /usr/lib/ -name '*.pyc' -print0 | xargs -0 -n1 rm -rf \
+    && ls /usr/lib -l
 
 # Now build the final image
 FROM ubuntu:22.04
@@ -62,6 +64,7 @@ RUN echo $TZ > /etc/timezone && apt-get update && DEBIAN_FRONTEND=noninteractive
         liblwp-protocol-https-perl \
         libprotocol-websocket-perl \
         # Other dependencies for event zmeventserver
+        python3 \
         libgeos-dev \
         gifsicle \
 	    gnupg \
@@ -70,7 +73,8 @@ RUN echo $TZ > /etc/timezone && apt-get update && DEBIAN_FRONTEND=noninteractive
     && apt-get clean \
     && rm -rf /tmp/* /var/tmp/*  \
     && rm -rf /var/lib/apt/lists/* \
-    &&  mkdir -p /etc/service/apache2 /var/log/apache2 /var/log/zm /etc/my_init.d
+    &&  mkdir -p /etc/service/apache2 /var/log/apache2 /var/log/zm /etc/my_init.d \
+    && ls /usr/lib -l
 
 # Copy the zoneminder dependecies from builder
 COPY --from=builder /usr/lib/python3.10/site-packages/ /usr/lib/python3.10/site-packages/
