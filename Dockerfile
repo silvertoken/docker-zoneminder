@@ -1,8 +1,12 @@
 # build missing perl dependencies for use in final container
-FROM ubuntu:22.04 as perlbuild
+FROM ubuntu:22.04 as builder
 
 ENV TZ America/Chicago
 WORKDIR /usr/src
+
+# Install python requirements for zmeventserver
+COPY requirements.txt /usr/src/requirements.txt
+
 RUN echo $TZ > /etc/timezone && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y -q --no-install-recommends \
         perl \
         make \	
@@ -13,14 +17,20 @@ RUN echo $TZ > /etc/timezone && apt-get update && DEBIAN_FRONTEND=noninteractive
         libgit-repository-perl \
         libprotocol-websocket-perl \
         apt-file \
+        python3-pip \
+        python3-dev \
     && apt-get clean
+
 RUN apt-file update \
     && dh-make-perl --build --cpan Net::WebSocket::Server \
-    && dh-make-perl --build --cpan Net::MQTT::Simple
+    && dh-make-perl --build --cpan Net::MQTT::Simple \
+    && pip3 install --no-cache-dir -r /usr/src/requirements.txt \
+    && find /usr/lib/ -name '__pycache__' -print0 | xargs -0 -n1 rm -rf \
+	&& find /usr/lib/ -name '*.pyc' -print0 | xargs -0 -n1 rm -rf
 
 # Now build the final image
 FROM ubuntu:22.04
-LABEL maintainer="Angel Rodriguez <angel@quantumobject.com>"
+LABEL maintainer="Silvertoken"
 
 ENV TZ America/Chicago
 ENV ZM_DB_HOST db
@@ -29,7 +39,7 @@ ENV ZM_DB_USER zmuser
 ENV ZM_DB_PASS zmpass
 ENV ZM_DB_PORT 3306
 
-COPY --from=perlbuild /usr/src/*.deb /usr/src/
+COPY --from=builder /usr/src/*.deb /usr/src/
 
 # Update the container
 # Installation of nesesary package/software for this containers...
@@ -52,8 +62,6 @@ RUN echo $TZ > /etc/timezone && apt-get update && DEBIAN_FRONTEND=noninteractive
         liblwp-protocol-https-perl \
         libprotocol-websocket-perl \
         # Other dependencies for event zmeventserver
-        python3-pip \
-        python3-dev \
         libgeos-dev \
         gifsicle \
 	    gnupg \
@@ -64,10 +72,8 @@ RUN echo $TZ > /etc/timezone && apt-get update && DEBIAN_FRONTEND=noninteractive
     && rm -rf /var/lib/apt/lists/* \
     &&  mkdir -p /etc/service/apache2 /var/log/apache2 /var/log/zm /etc/my_init.d
 
-# Install python requirements for zmeventserver
-COPY requirements.txt /usr/src/requirements.txt
-
-RUN pip3 install --no-cache-dir -r /usr/src/requirements.txt
+# Copy the zoneminder dependecies from builder
+COPY --from=builder /usr/lib/python3.11/site-packages/ /usr/lib/python3.11/site-packages/
 
 # Install zoneminder
 RUN echo "deb http://ppa.launchpad.net/iconnor/zoneminder-1.36/ubuntu `cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2` main" >> /etc/apt/sources.list  \
