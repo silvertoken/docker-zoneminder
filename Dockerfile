@@ -73,7 +73,7 @@ RUN echo $TZ > /etc/timezone && apt-get update && DEBIAN_FRONTEND=noninteractive
     &&  mkdir -p /etc/service/apache2 /var/log/apache2 /var/log/zm /etc/my_init.d
 
 # Copy the zoneminder dependecies from builder
-COPY --from=builder /usr/lib/python3.11/site-packages/ /usr/lib/python3.11/site-packages/
+COPY --from=builder /usr/lib/python3.10/site-packages/ /usr/lib/python3.10/site-packages/
 
 # Install zoneminder
 RUN echo "deb http://ppa.launchpad.net/iconnor/zoneminder-1.36/ubuntu `cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2` main" >> /etc/apt/sources.list  \
