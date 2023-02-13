@@ -25,10 +25,10 @@ RUN echo $TZ > /etc/timezone && apt-get update && DEBIAN_FRONTEND=noninteractive
 RUN apt-file update \
     && dh-make-perl --build --cpan Net::WebSocket::Server \
     && dh-make-perl --build --cpan Net::MQTT::Simple \
-    && pip3 install --no-cache-dir -r /usr/src/requirements.txt \
-    && find /usr/lib/ -name '__pycache__' -print0 | xargs -0 -n1 rm -rf \
-	&& find /usr/lib/ -name '*.pyc' -print0 | xargs -0 -n1 rm -rf \
-    && ls /usr/lib -l
+    && pip3 install --no-cache-dir --user -r /usr/src/requirements.txt \
+    && find /root/.local/ -name '__pycache__' -print0 | xargs -0 -n1 rm -rf \
+	&& find /root/.local/ -name '*.pyc' -print0 | xargs -0 -n1 rm -rf \
+    && ls /root/.local
 
 # Now build the final image
 FROM ubuntu:22.04
@@ -77,7 +77,7 @@ RUN echo $TZ > /etc/timezone && apt-get update && DEBIAN_FRONTEND=noninteractive
     && ls /usr/lib -l
 
 # Copy the zoneminder dependecies from builder
-COPY --from=builder /usr/lib/python3.10/site-packages/ /usr/lib/python3.10/site-packages/
+COPY --from=builder /root/.local/ /root/.local/
 
 # Install zoneminder
 RUN echo "deb http://ppa.launchpad.net/iconnor/zoneminder-1.36/ubuntu `cat /etc/os-release | grep UBUNTU_CODENAME | cut -d = -f 2` main" >> /etc/apt/sources.list  \
